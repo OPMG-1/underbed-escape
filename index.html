@@ -43,18 +43,55 @@ html{width:100%;-webkit-text-size-adjust:100%}body{min-width:0;overflow-x:hidden
 }
 @media(max-width:390px){.game{height:65dvh;min-height:330px}.panel{padding:12px}.book-page .illustration{height:95px}.panel .ending-table td{grid-template-columns:68px minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
-</style></head><body><main class="shell"><div class="top"><div class="brand">UNDER THE BED <span style="color:#777">/ FINAL PROTOTYPE · DICTIONARY</span></div><div class="status" id="status">낯선 방 · 정면</div><button id="audio-toggle" type="button" aria-label="배경음 켜기" style="margin-left:10px;padding:7px 11px;background:#29262b;color:#eee;border:1px solid #71656a;border-radius:8px;cursor:pointer;white-space:nowrap">♪ 소리 켜기</button></div><div class="game" id="game"><div class="scene" id="scene"></div><div id="overlay-root"></div><div id="intro" class="intro"><span>...눈을 뜬다.</span></div></div><div class="nav"><button id="left">◀ 왼쪽 보기</button><button id="center">◎ 정면 보기</button><button id="right">오른쪽 보기 ▶</button></div><div class="bottom"><div class="inventory"><span style="font-size:12px;color:#c9a476">소지품</span><span id="items" class="empty">비어 있음</span></div><button class="action" id="notebook">✎ 해독 노트</button></div><div class="footer">사물을 클릭해 조사 · 방향 버튼으로 시선 이동 · NPC와 그림책은 미지의 언어 · 단어를 눌러 직접 번역 · 플레이어 선택지는 한국어</div></main><script>
+
+/* v2.0: mechanical notebook examiner */
+.examiner{position:absolute;left:12%;top:40%;width:18%;height:29%;pointer-events:none;filter:drop-shadow(0 9px 10px #000c)}
+.examiner .antenna{position:absolute;left:49%;top:-14%;width:3px;height:19%;background:#8d8577;transform:rotate(-12deg)}
+.examiner .antenna:after{content:"";position:absolute;top:-5px;left:-4px;width:11px;height:11px;border-radius:50%;background:#bc7562;box-shadow:0 0 11px #ba685b}
+.examiner .head{position:absolute;top:6%;left:9%;width:82%;height:43%;border:3px solid #77756a;border-radius:10px 10px 4px 4px;background:linear-gradient(140deg,#64645f,#272c30 65%,#12181b)}
+.examiner .head:after{content:'••';position:absolute;top:30%;left:13%;right:13%;text-align:center;letter-spacing:.6em;font-size:16px;color:#c7e3c5;text-shadow:0 0 9px #a4e7b0;background:#090e12;border:3px solid #1a1b20;border-radius:5px}
+.examiner .body{position:absolute;top:46%;left:2%;width:96%;height:52%;border:3px solid #817b6c;border-bottom:7px solid #22262b;border-radius:6px 6px 12px 12px;background:linear-gradient(130deg,#79766b,#424748 45%,#20262c)}
+.examiner .body:before{content:'ARCH-07';position:absolute;top:12%;left:10%;font:8px monospace;letter-spacing:1px;color:#c3b99c;background:#292e2f;padding:3px}
+.examiner .body:after{content:'';position:absolute;top:62%;left:12%;width:76%;height:11%;border-radius:3px;background:#07080b;border:2px solid #25262b}
+.examiner .arm{position:absolute;top:48%;width:12%;height:43%;background:#67675e;border:2px solid #32383a;border-radius:10px;z-index:-1}
+.examiner .arm.left{left:-5%;transform:rotate(14deg)}.examiner .arm.right{right:-5%;transform:rotate(-14deg)}
+.examiner-result{font-size:clamp(23px,5vw,34px);font-weight:800;letter-spacing:.1em;text-align:center;color:#242a2a}
+@media(max-width:650px){.examiner{left:7%;width:24%;top:45%;height:24%}}
+.printer-overlay{background:#05060be8}.printer-panel{position:relative;width:min(550px,100%);max-height:calc(100% - 20px);overflow:auto;padding:16px 18px 18px;border:1px solid #736958;border-radius:13px;background:radial-gradient(ellipse at 50% 33%,#30343b,#14171d 75%);box-shadow:0 20px 65px #000}
+.printer-panel h1{text-align:center;font:12px Georgia,serif;letter-spacing:.24em;color:#b6a68d;margin:0 0 8px}
+.printer-panel .printer-description{text-align:center;color:#bfb9b0;font-size:13px;line-height:1.6;min-height:40px;margin:9px 0}
+.printer-figure{position:relative;width:250px;height:325px;margin:0 auto;filter:drop-shadow(0 16px 14px #0009)}
+.printer-figure .antenna{position:absolute;top:3px;left:122px;width:4px;height:48px;transform:rotate(-9deg);background:linear-gradient(90deg,#222,#a8a093,#222)}
+.printer-figure .antenna:before{content:'';position:absolute;top:-6px;left:-5px;width:14px;height:14px;border-radius:50%;background:#b96f5d;box-shadow:0 0 15px #b96f5d}
+.printer-figure .upper{position:absolute;top:45px;left:18px;width:214px;height:88px;border:3px solid #807e72;border-radius:16px 16px 8px 8px;background:linear-gradient(135deg,#73746d,#363d40 55%,#191e23);box-shadow:inset 0 2px #ffffff55}
+.printer-figure .upper:before{content:'';position:absolute;top:9px;left:20px;right:20px;height:9px;border-radius:5px;background:#101318}
+.printer-figure .face{position:absolute;top:32px;left:29px;right:29px;height:42px;background:#070c0f;border:4px solid #191d20;border-radius:7px;display:flex;justify-content:space-evenly;align-items:center}
+.printer-figure .eye{width:19px;height:9px;border-radius:50%;background:#c0d7b5;box-shadow:0 0 12px #a5e5b1;animation:printer-eye-blink 6s infinite}
+@keyframes printer-eye-blink{0%,92%,96%,100%{transform:scaleY(1)}94%{transform:scaleY(.1)}}
+.printer-figure .body{position:absolute;top:128px;left:0;width:250px;height:119px;border:3px solid #8c877a;border-bottom:7px solid #1b2024;border-radius:9px 9px 19px 19px;background:linear-gradient(140deg,#7b796e,#424749 43%,#22272c);box-shadow:inset 3px 3px #ffffff25}
+.printer-figure .plate{position:absolute;top:14px;left:19px;padding:4px 6px;font:10px monospace;letter-spacing:1px;color:#c9bda4;background:#292c2b;border:1px solid #827d70}
+.printer-figure .led{position:absolute;right:20px;top:17px;width:9px;height:9px;border-radius:50%;background:#d0d59b;box-shadow:0 0 12px #d0d59b;animation:printer-led 2.8s infinite}
+@keyframes printer-led{50%{opacity:.2}}
+.printer-figure .slot{position:absolute;left:24px;right:24px;top:64px;height:17px;background:#050608;border:4px solid #1d2024;border-radius:4px}
+.printer-figure .arm{position:absolute;top:145px;width:24px;height:92px;border:3px solid #696b62;border-radius:13px;background:linear-gradient(90deg,#22272b,#818077,#2b3033);z-index:-1}
+.printer-figure .arm.left{left:-18px;transform:rotate(15deg)}.printer-figure .arm.right{right:-18px;transform:rotate(-15deg)}
+.printer-figure .leg{position:absolute;top:235px;width:27px;height:28px;background:#383d40;border:2px solid #70716a;z-index:-1}.printer-figure .leg.left{left:38px}.printer-figure .leg.right{right:38px}
+.printer-figure .paper{position:absolute;z-index:3;top:204px;left:43px;width:164px;height:0;overflow:hidden;background:repeating-linear-gradient(0deg,#cfc6ad 0 19px,#b9b09a 20px);color:#282d2a;text-align:center;font:12px monospace;box-shadow:0 6px 15px #0007;transition:height 1.2s ease}
+.printer-figure .paper.printed{height:110px;border:2px solid #e2d8bf}
+.printer-figure .paper .receipt-head{font-size:10px;padding-top:11px}.printer-figure .paper .examiner-result{margin:11px 0 5px}.printer-figure .paper .receipt-foot{font-size:9px}
+.printer-controls{position:relative;z-index:4;display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:12px}.printer-controls button{padding:10px 18px;border:1px solid #a28b6e;border-radius:5px;background:#2d3032;color:#e8dcc9;cursor:pointer}.printer-controls button:hover{background:#484743}.printer-controls button:disabled{opacity:.5;cursor:wait}
+#lobby{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;overflow:auto;padding:22px;background:radial-gradient(ellipse at 50% 30%,#34303a,#111118 58%,#06070b);color:#e9dfd3}#lobby.hidden{display:none}.lobby-door{position:absolute;top:8%;bottom:0;width:min(340px,60vw);border:12px ridge #3e3334;background:linear-gradient(90deg,#19151b,#302831 50%,#17151a);opacity:.65;box-shadow:0 0 110px #000}.lobby-door:after{content:"";position:absolute;right:22px;top:54%;width:13px;height:13px;border-radius:50%;background:#bca17c}.lobby-content{position:relative;width:min(480px,100%);padding:30px 24px;text-align:center;background:#101117e8;border:1px solid #756557;border-radius:10px;box-shadow:0 18px 90px #000c}.lobby-content h1{font-size:clamp(28px,7vw,45px);font-weight:500;letter-spacing:.08em;margin:8px 0}.lobby-sub{color:#aa998e;font-size:12px;letter-spacing:.3em;margin-bottom:26px}.lobby-section{display:none}.lobby-section.active{display:block}.lobby-btn{display:block;width:100%;padding:14px;margin:10px 0;background:#29252d;border:1px solid #88766b;color:#e9dfd3;border-radius:6px;cursor:pointer;font:inherit}.lobby-btn:hover{background:#49404a}.lobby-btn.primary{background:#58463e;border-color:#d3ac86}.lobby-note{font-size:12px;color:#b9ada4;line-height:1.8}.lobby-settings{text-align:left;margin:18px 0}.lobby-settings label{display:flex;justify-content:space-between;margin:17px 0 7px}.lobby-settings input{width:100%;accent-color:#caa486}#lobby-exit-msg{font-size:12px;color:#c5ad91}.lobby-footer{margin-top:23px;color:#8b7c79;font-size:10px;letter-spacing:.15em}</style></head><body><div id="lobby" role="dialog" aria-modal="true" aria-label="메인 로비"><div class="lobby-door"></div><div class="lobby-content"><div style="font-size:11px;letter-spacing:.3em;color:#b8a08c">AN UNKNOWN VOICE WAITS</div><h1>침대 밑의 목소리</h1><div class="lobby-sub">UNDER THE BED</div><div id="lobby-home" class="lobby-section active"><button class="lobby-btn primary" id="lobby-start">게임 시작</button><button class="lobby-btn" id="lobby-settings-btn">설정</button><button class="lobby-btn" id="lobby-exit">나가기</button><div id="lobby-exit-msg"></div></div><div id="lobby-modes" class="lobby-section"><p class="lobby-note">도움을 받을 것인가, 혼자 해독할 것인가?</p><button class="lobby-btn primary" id="mode-easy">이지 모드 · 기록 판독기 있음</button><button class="lobby-btn" id="mode-normal">노말 모드 · 기록 판독기 없음 (하드)</button><button class="lobby-btn" data-lobby-back>뒤로</button></div><div id="lobby-settings" class="lobby-section"><div class="lobby-settings"><label for="bgm-volume">배경음 <output id="bgm-value">65%</output></label><input type="range" id="bgm-volume" min="0" max="100" value="65"><label for="sfx-volume">효과음 <output id="sfx-value">80%</output></label><input type="range" id="sfx-volume" min="0" max="100" value="80"></div><p class="lobby-note">소리는 게임 시작 후 재생돼.</p><button class="lobby-btn" data-lobby-back>뒤로</button></div><div class="lobby-footer">DECIPHER THE UNKNOWN · ESCAPE THE ROOM</div></div></div><main class="shell"><div class="top"><div class="brand">UNDER THE BED <span style="color:#777">/ FINAL PROTOTYPE · DICTIONARY</span></div><div class="status" id="status">낯선 방 · 정면</div><button id="audio-toggle" type="button" aria-label="배경음 켜기" style="margin-left:10px;padding:7px 11px;background:#29262b;color:#eee;border:1px solid #71656a;border-radius:8px;cursor:pointer;white-space:nowrap">♪ 소리 켜기</button></div><div class="game" id="game"><div class="scene" id="scene"></div><div id="overlay-root"></div><div id="intro" class="intro"><span>...눈을 뜬다.</span></div></div><div class="nav"><button id="left">◀ 왼쪽 보기</button><button id="center">◎ 정면 보기</button><button id="right">오른쪽 보기 ▶</button></div><div class="bottom"><div class="inventory"><span style="font-size:12px;color:#c9a476">소지품</span><span id="items" class="empty">비어 있음</span></div><button class="action" id="notebook">✎ 해독 노트</button></div><div class="footer">사물을 클릭해 조사 · 방향 버튼으로 시선 이동 · NPC와 그림책은 미지의 언어 · 단어를 눌러 직접 번역 · 플레이어 선택지는 한국어</div></main><script>
 const $=id=>document.getElementById(id);
 
 // 외부 파일 없이 Web Audio로 생성하는 저음 앰비언스. 사용자 클릭 후에만 재생한다.
-const sound={ctx:null,master:null,ambience:null,enabled:false,osc:[],timer:null};
+const sound={ctx:null,master:null,ambience:null,enabled:false,osc:[],timer:null,sfxGain:null,bgmGain:null,bgmVolume:.65,sfxVolume:.8};
 function initSound(){
  if(sound.ctx)return;
  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
  const ctx=sound.ctx=new AC();
  const master=sound.master=ctx.createGain();master.gain.value=0;const limiter=ctx.createDynamicsCompressor();limiter.threshold.value=-14;limiter.knee.value=12;limiter.ratio.value=8;limiter.attack.value=.003;limiter.release.value=.18;master.connect(limiter);limiter.connect(ctx.destination);
  const low=ctx.createBiquadFilter();low.type='lowpass';low.frequency.value=380;low.connect(master);
- const amb=sound.ambience=ctx.createGain();amb.gain.value=.25;amb.connect(low);
+ const bgm=sound.bgmGain=ctx.createGain();bgm.gain.value=sound.bgmVolume;bgm.connect(low);const amb=sound.ambience=ctx.createGain();amb.gain.value=.25;amb.connect(bgm);const sfx=sound.sfxGain=ctx.createGain();sfx.gain.value=sound.sfxVolume;sfx.connect(master);
  [[55,.055],[82.41,.025],[110,.012]].forEach(([hz,vol],i)=>{
    const o=ctx.createOscillator(),g=ctx.createGain();o.type=i===1?'triangle':'sine';o.frequency.value=hz;g.gain.value=vol;o.connect(g);g.connect(amb);o.start();sound.osc.push(o);
  });
@@ -64,7 +101,7 @@ function tone(freq=250,duration=.13,volume=.028,type='sine'){
  if(!sound.enabled||!sound.ctx)return;
  const c=sound.ctx,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,c.currentTime);o.frequency.exponentialRampToValueAtTime(Math.max(35,freq*.72),c.currentTime+duration);
  g.gain.setValueAtTime(.0001,c.currentTime);g.gain.exponentialRampToValueAtTime(volume,c.currentTime+.015);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+duration);
- o.connect(g);g.connect(sound.master);o.start();o.stop(c.currentTime+duration+.02);
+ o.connect(g);g.connect(sound.sfxGain);o.start();o.stop(c.currentTime+duration+.02);
 }
 // 불규칙한 간격으로 발생하는 아주 짧은 잡음과 문 두드림. 소리 끄면 예약도 중단.
 function burstNoise(duration=.12,volume=.02,cutoff=900){
@@ -73,7 +110,7 @@ function burstNoise(duration=.12,volume=.02,cutoff=900){
  for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,1.5);
  const src=c.createBufferSource(),filter=c.createBiquadFilter(),gain=c.createGain();src.buffer=buffer;filter.type='lowpass';filter.frequency.value=cutoff;
  gain.gain.setValueAtTime(volume,c.currentTime);gain.gain.exponentialRampToValueAtTime(.0001,c.currentTime+duration);
- src.connect(filter);filter.connect(gain);gain.connect(sound.master);src.start();src.stop(c.currentTime+duration);
+ src.connect(filter);filter.connect(gain);gain.connect(sound.sfxGain);src.start();src.stop(c.currentTime+duration);
 }
 // 나무 문을 손가락 관절로 두드리는 짧고 둔탁한 충격음.
 // 저음 사인파를 길게 울리지 않고, 짧은 대역 제한 잡음으로 만든다.
@@ -96,7 +133,7 @@ function knock(){
   const high=c.createBiquadFilter();high.type='highpass';high.frequency.value=190;
   const low=c.createBiquadFilter();low.type='lowpass';low.frequency.value=1000+Math.random()*250;
   const g=c.createGain();g.gain.value=.32+Math.random()*.07;
-  src.connect(high);high.connect(low);low.connect(g);g.connect(sound.master);
+  src.connect(high);high.connect(low);low.connect(g);g.connect(sound.sfxGain);
   src.start(t);src.stop(t+duration);
  }
 }
@@ -128,6 +165,7 @@ document.addEventListener('click',e=>{
 });
 
 const dictionary={"꿣":"나","졷":"너","햎핽":"사과","꼻륗":"먹는다","녷":"붉은","쀨":"천","뤼핌":"리본","다룬":"달","켈":"그림","숄":"뒤","무핌":"있다","투렐":"찾아줘","그륵":"고마워","켁":"열쇠","벡":"책","바롱":"친구","노킴":"준다","아룬":"작은","쉼":"침대","쥴":"아래","라핌":"선물","웅":"이것","샤룬":"어디","테룬":"잃었다","뮨":"봐","뎅":"문","가룬":"열다","솜":"긴"};
+let gameMode='easy';
 const state={doorSeen:false,requestHeard:false,bookSeen:false,bookPagesSeen:new Set(),view:0,met:false,bookPage:0,frame:false,ribbon:false,given:false,key:false,escaped:false,firstVoice:false,translations:{},notes:[],talkCount:0};
 const views=['정면 · 문','왼쪽 벽 · 침대','오른쪽 벽 · 선반'];
 const pages=[
@@ -142,7 +180,7 @@ function esc(t){return String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;',
 function tokens(arr){return arr.map(w=>`<button class="alien-token ${state.translations[w]?'known':''}" data-token="${esc(w)}" title="눌러서 뜻 기록">${esc(state.translations[w]||w)}</button>`).join(' ')}
 function wireTokens(){document.querySelectorAll('[data-token]').forEach(b=>b.onclick=()=>editWord(b.dataset.token))}
 function render(){const scene=$('scene');$('status').textContent='낯선 방 · '+views[state.view];let html='<div class="wall-line"></div><div class="wall-line right"></div><div class="floor"></div>';
-if(state.view===0){html+='<div class="door"><div class="door-knob"></div></div><div class="door-label">▣ ▥ ▣</div><button class="hotspot" style="left:35%;top:11%;width:30%;height:62%" data-label="잠긴 문" onclick="door()" aria-label="잠긴 문"></button>'}
+if(state.view===0){html+='<div class="door"><div class="door-knob"></div></div><div class="door-label">▣ ▥ ▣</div><button class="hotspot" style="left:35%;top:11%;width:30%;height:62%" data-label="잠긴 문" onclick="door()" aria-label="잠긴 문"></button>'+(gameMode==='easy'?'<div class="examiner" aria-hidden="true"><div class="antenna"></div><div class="arm left"></div><div class="arm right"></div><div class="body"></div><div class="head"></div></div><button class="hotspot" style="left:12%;top:32%;width:20%;height:39%" data-label="말없는 존재 · 해독 노트 검사" onclick="examiner()" aria-label="문 옆의 말없는 존재에게 해독 노트 보여주기"></button>':'');}
 else if(state.view===1){html+='<div class="bed"></div><div class="under"></div><div class="eyes"><i class="eye"></i><i class="eye"></i></div><button class="hotspot" style="left:17%;top:35%;width:66%;height:58%" data-label="침대 밑의 존재" onclick="monster()" aria-label="침대 밑의 존재"></button>'}
 else{html+='<div class="shelf"></div><div class="book-obj"></div><div class="frame '+(state.frame?'open':'')+'"></div><div class="lamp"></div><button class="hotspot" style="left:38%;top:13%;width:25%;height:30%" data-label="그림 동화책" onclick="book()" aria-label="그림 동화책"></button><button class="hotspot" style="left:65%;top:14%;width:24%;height:39%" data-label="달 그림" onclick="picture()" aria-label="달 그림"></button><button class="hotspot" style="left:11%;top:27%;width:18%;height:38%" data-label="낡은 조명" onclick="lamp()" aria-label="낡은 조명"></button>'}
 scene.innerHTML=html;$('left').disabled=false;$('right').disabled=false;$('center').disabled=state.view===0;let items=[];if(state.ribbon)items.push('<button onclick="inspectRibbon()">🎀 붉은 리본</button>');if(state.key)items.push('<button onclick="showText(\'녹슨 열쇠\',\'문에 맞을 것 같다.\')">🗝️ 녹슨 열쇠</button>');$('items').innerHTML=items.join('')||'비어 있음'}
@@ -218,9 +256,37 @@ function resetGame(){
  state.firstVoice=true;state.view=1;render();
  panel('침대 밑의 목소리','<p>“...꿣, 졷... 뮨.”</p><p>알아들을 수 없는 소리가 들리자, 반사적으로 침대 쪽으로 시선이 움직인다.</p>',[['누가 있는 거야?',()=>{close();monster()},true]]);
 }
+function examiner(){
+ if(gameMode!=='easy')return;
+ const recorded=Object.entries(state.translations).filter(([w,v])=>Object.prototype.hasOwnProperty.call(dictionary,w) && String(v).trim());
+ const ok=recorded.filter(([w])=>normalized(state.translations[w])===normalized(dictionary[w])||correct(w)).length;
+ const wrong=recorded.length-ok;
+ const root=$('overlay-root');
+ root.innerHTML=`<div class="overlay printer-overlay"><div class="printer-panel" role="dialog" aria-modal="true" aria-label="기록 판독기"><h1>UNKNOWN ENTITY · ARCHIVIST-07</h1><div class="printer-description" id="printer-message">낡은 기계가 당신의 해독 노트를 바라본다.<br>기계는 아무 말도 하지 않는다.</div><div class="printer-figure" role="img" aria-label="눈이 빛나는 오래된 프린터 모양의 기계"><div class="antenna"></div><div class="arm left"></div><div class="arm right"></div><div class="leg left"></div><div class="leg right"></div><div class="upper"><div class="face"><div class="eye"></div><div class="eye"></div></div></div><div class="body"><div class="plate">ARCHIVIST-07</div><div class="led"></div><div class="slot"></div></div><div class="paper" id="printer-paper"><div class="receipt-head">DECODING REPORT</div><div class="examiner-result">O: ${ok} &nbsp; X: ${wrong}</div><div class="receipt-foot">${recorded.length} WORDS · NO EXPLANATION</div></div></div><div class="printer-controls"><button id="printer-submit">해독 노트 건네기</button><button id="printer-close">돌아가기</button></div></div></div>`;
+ document.getElementById('printer-close').onclick=close;
+ document.getElementById('printer-submit').onclick=()=>{
+  const btn=document.getElementById('printer-submit');btn.disabled=true;btn.textContent='판독 중…';
+  document.getElementById('printer-message').innerHTML='철컥. 기계가 노트를 가져간다.<br>안쪽에서 톱니바퀴가 돌아간다…';
+  setTimeout(()=>{
+   if(!document.getElementById('printer-paper'))return;
+   document.getElementById('printer-paper').classList.add('printed');
+   document.getElementById('printer-message').innerHTML='기계가 짧은 종이를 토해낸다.<br>어떤 단어가 틀렸는지는 알려주지 않는다.';
+   btn.textContent='판독 완료';
+  },750);
+ };
+}
 function door(){if(state.key){state.escaped=true;endingDictionary()}else {state.doorSeen=true;note('정면 문에는 열쇠 구멍이 있다.');showText('잠긴 문','굳게 잠겨 있다. 손잡이를 돌려도 열리지 않는다. 열쇠가 필요할 것 같다.')}}
 function notes(){saveScreen('notes');let keys=Object.keys(state.translations);let entries=keys.length?keys.map(k=>`<button data-edit="${esc(k)}"><strong>${esc(k)}</strong> → ${esc(state.translations[k])}</button>`).join(''):'<p class="small">아직 번역한 단어가 없어. NPC 대화나 그림책의 기호를 눌러 봐.</p>';panel('나의 해독 노트',`<p class="small">네가 적은 뜻이 모든 대화와 책에 적용돼. 언제든 수정할 수 있어.</p><div class="lexicon">${entries}</div><hr style="border:0;border-top:1px solid #5e5350;margin:20px 0"><p class="small">관찰 메모</p><p class="small">${state.notes.map(x=>'• '+esc(x)).join('<br>')||'아직 없음'}</p>`,[['닫기',close]]);document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editWord(b.dataset.edit))}
-window.door=door;window.monster=monster;window.book=book;window.picture=picture;window.lamp=lamp;window.inspectRibbon=inspectRibbon;window.showText=showText;
+window.examiner=examiner;window.door=door;window.monster=monster;window.book=book;window.picture=picture;window.lamp=lamp;window.inspectRibbon=inspectRibbon;window.showText=showText;
 $('left').onclick=()=>look(state.view+1);$('right').onclick=()=>look(state.view-1);$('center').onclick=()=>look(0);$('notebook').onclick=notes;render();
-setTimeout(()=>{$('intro').classList.add('fadeout');setTimeout(()=>$('intro').remove(),1600);setTimeout(()=>{if(!state.firstVoice){state.firstVoice=true;state.view=1;render();panel('침대 밑의 목소리','<p>“...꿣, 졷... 뮨.”</p><p>알아들을 수 없는 소리가 들리자, 반사적으로 침대 쪽으로 시선이 움직인다.</p>',[['누가 있는 거야?',()=>{close();monster()},true]])}},1900)},700);
+function lobbySection(name){document.querySelectorAll('.lobby-section').forEach(el=>el.classList.toggle('active',el.id==='lobby-'+name))}
+$('lobby-start').onclick=()=>lobbySection('modes');
+$('lobby-settings-btn').onclick=()=>lobbySection('settings');
+document.querySelectorAll('[data-lobby-back]').forEach(b=>b.onclick=()=>lobbySection('home'));
+function applyVolumes(){sound.bgmVolume=Number($('bgm-volume').value)/100;sound.sfxVolume=Number($('sfx-volume').value)/100;$('bgm-value').textContent=Math.round(sound.bgmVolume*100)+'%';$('sfx-value').textContent=Math.round(sound.sfxVolume*100)+'%';if(sound.bgmGain)sound.bgmGain.gain.value=sound.bgmVolume;if(sound.sfxGain)sound.sfxGain.gain.value=sound.sfxVolume}
+$('bgm-volume').oninput=applyVolumes;$('sfx-volume').oninput=applyVolumes;
+function beginMode(mode){gameMode=mode;$('lobby').classList.add('hidden');$('intro').remove();setSound(true);applyVolumes();resetGame()}
+$('mode-easy').onclick=()=>beginMode('easy');
+$('mode-normal').onclick=()=>beginMode('normal');
+$('lobby-exit').onclick=()=>{window.close();$('lobby-exit-msg').textContent='브라우저가 창 닫기를 막았다면 탭을 직접 닫아줘.'};
 </script></body></html>
